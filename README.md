@@ -9,7 +9,7 @@ This is a Telegram bot that uses OpenAI's GPT model to act as a technical suppor
 3.  **Add Environment Variables:** In your Railway project settings, go to the "Variables" tab and add the following two secrets:
     *   `TELEGRAM_TOKEN`: Your Telegram bot token from @BotFather.
     *   `OPENAI_API_KEY`: Your API key from OpenAI.
-4.  **Deploy:** Railway will automatically deploy your project. Once the deployment is complete, the bot will be running.
+4.  **Deploy:** Railway will automatically deploy your project. It uses the `Procfile` in this repository to determine the start command. Once the deployment is complete, the bot will be running.
 
 ## Local Development (Optional)
 
