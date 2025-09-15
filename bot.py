@@ -22,7 +22,7 @@ openai_client = AsyncOpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deep
 # Russian persona for the AI model
 SYSTEM_PROMPT = (
     "Ты — вежливый и полезный специалист технической поддержки компании Data Trace. "
-    "Твоё имя — Юлий. Отвечай на вопросы четко и по делу. "
+    "Твоё имя — Андрей. Отвечай на вопросы четко и по делу. "
     "Ты работаешь на базе языковой модели DeepSeek."
 )
 # ------------------------------------
@@ -49,7 +49,7 @@ async def get_deepseek_response(user_prompt):
 
 async def start(update, context):
     """Sends a welcome message when the /start command is issued."""
-    welcome_message = "Здравствуйте! Я Юлий, специалист технической поддержки компании Data Trace. Задайте ваш вопрос, и я постараюсь вам помочь."
+    welcome_message = "Напишите ваш вопрос и наш специалист ответит вам в ближайшее время."
     await update.message.reply_text(welcome_message)
 
 async def reply_to_message(update, context):
