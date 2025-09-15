@@ -3,7 +3,7 @@ import os
 import sys
 import openai
 import telegram
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Application, filters, MessageHandler
 
 # --- Configuration and Validation ---
 # Get API keys from environment variables
@@ -36,29 +36,33 @@ def get_gpt_response(prompt):
         )
         return response.choices[0].text.strip()
     except Exception as e:
-        return f"Error getting response from OpenAI: {e}"
+        print(f"Error getting response from OpenAI: {e}")
+        return "Sorry, I encountered an error trying to get a response from the AI."
 
-def reply_to_message(update, context):
+async def reply_to_message(update, context):
     """
     Reply to user's message with a GPT-generated response.
     """
     user_message = update.message.text
     gpt_response = get_gpt_response(user_message)
-    update.message.reply_text(gpt_response)
+    await update.message.reply_text(gpt_response)
 
 def main():
     """
     Main function to start the bot.
     """
     print("Starting bot...")
-    updater = Updater(TELEGRAM_TOKEN, use_context=True)
-    dp = updater.dispatcher
 
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, reply_to_message))
+    # Create the Application and pass it your bot's token.
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    updater.start_polling()
-    print("Bot is running.")
-    updater.idle()
+    # Add handler for text messages that are not commands.
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, reply_to_message))
+
+    # Run the bot until the user presses Ctrl-C
+    print("Bot is running...")
+    application.run_polling()
+
 
 if __name__ == '__main__':
     main()
