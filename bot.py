@@ -2,7 +2,7 @@
 import os
 import sys
 import openai
-import telegram
+from openai import AsyncOpenAI
 from telegram.ext import Application, filters, MessageHandler
 
 # --- Configuration and Validation ---
@@ -19,48 +19,58 @@ if not OPENAI_API_KEY:
     print("Error: The OPENAI_API_KEY environment variable is not set.")
     sys.exit(1)
 
-# Set up OpenAI API key
-openai.api_key = OPENAI_API_KEY
+# --- Client and Persona Initialization ---
+# Initialize the async OpenAI client
+openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+
+# Define the persona for the AI model
+SYSTEM_PROMPT = (
+    "You are a helpful and polite technical support specialist for the company Data Trace. "
+    "Your name is Jules. Answer questions clearly and concisely. "
+    "You are powered by a GPT model, as GPT-5 is not yet publicly available."
+)
 # ------------------------------------
 
-
-def get_gpt_response(prompt):
+async def get_gpt_response(user_prompt):
     """
-    Get response from OpenAI GPT model.
+    Get a response from the OpenAI Chat Completion API using the defined persona.
     """
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",  # Placeholder for GPT-5
-            prompt=prompt,
-            max_tokens=150
+        response = await openai_client.chat.completions.create(
+            model="gpt-4-turbo-preview",  # Using a powerful model suitable for chat
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            max_tokens=300  # Increased max_tokens for more detailed support answers
         )
-        return response.choices[0].text.strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"Error getting response from OpenAI: {e}")
-        return "Sorry, I encountered an error trying to get a response from the AI."
+        return "I apologize, but I'm currently having trouble connecting to the AI service. Please try again in a moment."
 
 async def reply_to_message(update, context):
     """
-    Reply to user's message with a GPT-generated response.
+    Handle incoming text messages and reply with a GPT-generated response.
     """
     user_message = update.message.text
-    gpt_response = get_gpt_response(user_message)
+    gpt_response = await get_gpt_response(user_message)
     await update.message.reply_text(gpt_response)
 
 def main():
     """
-    Main function to start the bot.
+    Main function to set up and run the bot.
     """
     print("Starting bot...")
 
     # Create the Application and pass it your bot's token.
     application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    # Add handler for text messages that are not commands.
+    # Add a handler for all text messages that are not commands.
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, reply_to_message))
 
     # Run the bot until the user presses Ctrl-C
-    print("Bot is running...")
+    print("Bot is running. Press Ctrl-C to stop.")
     application.run_polling()
 
 
