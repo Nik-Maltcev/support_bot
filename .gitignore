@@ -1,5 +1,5 @@
-# Ignore the configuration file containing secret API keys
-settings.py
+# Ignore .env file containing secret API keys for local development
+.env
 
 # Ignore Python cache files
 __pycache__/
